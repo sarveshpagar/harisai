@@ -29,7 +29,6 @@ a:hover,a:focus{ text-decoration: none}
 
 /* Header */
 
-
 /*Preloader css*/
 #loading{
     background-color: #ffcb0f;
@@ -107,14 +106,11 @@ a:hover,a:focus{ text-decoration: none}
 }						
 
 @-webkit-keyframes animate {
-
     50% {
         -ms-transform: translateX(-25px) scaleY(0.5); 
         -webkit-transform: translateX(-25px) scaleY(0.5);
         transform: translateX(-25px) scaleY(0.5);
-
     }
-
 }
 
 @keyframes animate {
@@ -123,14 +119,9 @@ a:hover,a:focus{ text-decoration: none}
         -webkit-transform: translateX(-25px) scaleY(0.5);
         transform: translateX(-25px) scaleY(0.5);
     }
-
 }
 
 /*End off Preloader*/
-
-
-
-
 
 /* Top Nav */
 .top_nav {
@@ -202,6 +193,11 @@ nav.navbar.bootsnav ul.nav > li > a:hover,nav.navbar.bootsnav ul.nav > li > a:fo
     height: 100%;
     object-fit: cover;
 }
+.carousel-inner .item img {
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+    object-fit: cover; /* Ensures the image covers the container */
+}
 /*.carousel-inner > .item > a > img,
 .carousel-inner > .item > img {
     height: 700px;
@@ -263,9 +259,6 @@ nav.navbar.bootsnav ul.nav > li > a:hover,nav.navbar.bootsnav ul.nav > li > a:fo
     border:1px solid #ffcb0f;
 }
 
-
-
-
 .carousel-control{
     width:50px;
     height: 50px;
@@ -299,6 +292,7 @@ nav.navbar.bootsnav ul.nav > li > a:hover,nav.navbar.bootsnav ul.nav > li > a:fo
 }
 .about_bg {
     background: url(../images/about_bg.png)no-repeat right;
+    margin-bottom: 20px;
 }
 
 /*Head Title*/
@@ -416,12 +410,15 @@ nav.navbar.bootsnav ul.nav > li > a:hover,nav.navbar.bootsnav ul.nav > li > a:fo
     position: absolute;
     text-align: center;
     opacity:0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 .grid-item:hover .portfolio_hover_area {opacity: 1;}
 .portfolio_hover_area .fa {
     background: #ffcb0f none repeat scroll 0 0;
     border: 2px solid transparent;
-    border-radius: 5px;
     border-radius: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
@@ -532,6 +529,8 @@ nav.navbar.bootsnav ul.nav > li > a:hover,nav.navbar.bootsnav ul.nav > li > a:fo
 #contact_form {
     background: #fedb5d none repeat scroll 0 0;
     padding:27px 0 32px;
+    min-height: auto;
+    padding: 40px 0;
 }
 #contact_form h2 {
     margin: 20px 0 0;
@@ -729,8 +728,6 @@ footer::after {
     .about_content {
         margin-right: 50px;
     }
-
-
 }
 
 @media (max-width: 1199px) {
@@ -749,7 +746,6 @@ footer::after {
         right: 3%;
         top:40px;
     }
-
     .about_banner > img {
         width: 334px;
         display:block;
@@ -777,8 +773,6 @@ footer::after {
     #contact_form .btn.submit_btn {
         width: 95px;
     }
-
-
 }
 
 @media (max-width: 991px) {
@@ -831,8 +825,12 @@ footer::after {
     #contact_form .btn.submit_btn {
         width: 168px;
     }
+}
 
-
+@media (max-width: 768px) {
+    .carousel-inner .item img {
+        height: 70vh; /* Adjust height for smaller screens */
+    }
 }
 
 @media (max-width: 767px) {
@@ -880,7 +878,6 @@ footer::after {
     .service_item .btn.know_btn {
         margin-bottom: 80px;
     }
-
     #contact_form h2 {
         margin-top: 10px;
     }
@@ -899,8 +896,6 @@ footer::after {
         margin: 0;
         width: 145px;
     }
-
-
 }
 
 @media (max-width: 479px) {
@@ -970,6 +965,48 @@ footer::after {
     .list-inline.footer_social_icon > li {
         padding: 8px 3px;
     }
+}
 
+/* New styles for portfolio section */
+.show-more-btn {
+    background: #222533;
+    color: #fff;
+    border: none;
+    border-radius: 18px;
+    padding: 8px 16px;
+    font-family: "futura_ltbold", sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    margin-top: 10px;
+}
+.show-more-btn:hover {
+    background: #555;
+    color: #ffcb0f;
+}
+.grid-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
+/* Fix section overlap */
+section {
+    position: relative;
+    clear: both;
+    margin-bottom: 40px;
+}
+#about, #why_us, #services, #portfolio, #contact_form {
+    min-height: auto;
+    padding: 40px 0;
+}
+.about_bg {
+    margin-bottom: 20px;
+}
+#why_us .container {
+    padding-top: 20px;
+}
+.grid {
+    overflow: hidden;
 }
