@@ -19,7 +19,7 @@ a,button{outline: 0 !important;}
 a:hover,a:focus{ text-decoration: none}
 
 /* All Transition */
-.list-inline.info a,.list-inline.social_icon a,nav.navbar.bootsnav ul.nav > li > a,.attr-nav > ul > li > a,.btn.know_btn,#filters > button,.portfolio_hover_area,.portfolio_hover_area .fa,.testimonial_content,.testimonial_content p:first-child::before,#contact_form .form-control,#contact_form .btn.submit_btn,footer a,.footer_social_icon .fa,.post .date,#scrollUp{
+.list-inline.info a,.list-inline.social_icon a,nav.navbar.bootsnav ul.nav > li > a,.attr-nav > ul > li > a,.btn.know_btn,#filters > button,.portfolio_hover_area,.portfolio_hover_area .fa,.testimonial_content,.testimonial_content p:first-child::before,#contact_form .formCONTROL,.btn.submit_btn,footer a,.footer_social_icon .fa,.post .date,#scrollUp{
     transition: all 0.4s ease;
     -webkit-transition: all 0.4s ease;
     -moz-transition: all 0.4s ease;
@@ -164,7 +164,18 @@ nav.navbar.bootsnav ul.nav > li > a:hover,nav.navbar.bootsnav ul.nav > li > a:fo
 }
 .navbar-brand {
     height: auto;
-    padding: 20px 15px;
+    padding: 15px 15px;
+    display: flex;
+    align-items: center;
+}
+.navbar-brand .text-logo {
+    font-family: 'futura_ltbold', sans-serif;
+    font-size: 28px;
+    color: #ffcb0f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    margin-top: 15px;
 }
 #navbar-menu {
     margin: 6px 0;
@@ -621,9 +632,15 @@ footer::after {
     color: #fff;
 }
 /* Footer About */
-.footer_item .logo {
+.footer_item .text-logo {
+    display: block;
+    font-family: 'futura_ltbold', sans-serif;
+    font-size: 20px;
+    color: #ffcb0f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     margin-bottom: 15px;
-    width: 200px;
+    line-height: 1.2;
 }
 .list-inline.footer_social_icon {
     margin: 32px 0 0;
@@ -773,6 +790,9 @@ footer::after {
     #contact_form .btn.submit_btn {
         width: 95px;
     }
+    .navbar-brand .text-logo {
+        font-size: 20px;
+    }
 }
 
 @media (max-width: 991px) {
@@ -824,6 +844,12 @@ footer::after {
     }
     #contact_form .btn.submit_btn {
         width: 168px;
+    }
+    .navbar-brand .text-logo {
+        font-size: 18px;
+    }
+    .footer_item .text-logo {
+        font-size: 18px;
     }
 }
 
@@ -896,6 +922,12 @@ footer::after {
         margin: 0;
         width: 145px;
     }
+    .navbar-brand .text-logo {
+        font-size: 16px;
+    }
+    .footer_item .text-logo {
+        font-size: 16px;
+    }
 }
 
 @media (max-width: 479px) {
@@ -964,6 +996,12 @@ footer::after {
     }
     .list-inline.footer_social_icon > li {
         padding: 8px 3px;
+    }
+    .navbar-brand .text-logo {
+        font-size: 14px;
+    }
+    .footer_item .text-logo {
+        font-size: 14px;
     }
 }
 

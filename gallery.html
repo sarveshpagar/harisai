@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Project Gallery</title>
+    <link rel="stylesheet" href="css/jquery.fancybox.css?v=2.1.5" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/font-awesome.min.css" />
+    <link rel="stylesheet" href="custom-font/fonts.css" />
+    <style>
+        body {
+            background: #f2f7fa;
+            padding: 20px;
+            font-family: 'futura_ltbook', sans-serif;
+        }
+        h2 {
+            color: #ffcb0f;
+            text-transform: uppercase;
+            font-family: 'futura_ltbold', sans-serif;
+            margin-bottom: 20px;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .gallery-grid img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .gallery-grid a {
+            display: block;
+        }
+        .back-btn {
+            background: #ffcb0f;
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-family: 'futura_ltbold', sans-serif;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.4s ease;
+        }
+        .back-btn:hover {
+            background: #d7a300;
+            color: #fff;
+        }
+        .error-message {
+            color: #ff0000;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html#portfolio" class="back-btn"><i class="fa fa-arrow-left"></i> Back to Portfolio</a>
+    <h2 id="gallery-title">Loading...</h2>
+    <div class="gallery-grid" id="gallery-grid"></div>
+    <p id="error-message" class="error-message" style="display: none;"></p>
+    <script src="js/jquery-1.12.1.min.js"></script>
+    <script src="js/jquery.fancybox.js?v=2.1.5"></script>
+    <script>
+        $(document).ready(function() {
+            // Get category from URL parameter
+            var urlParams = new URLSearchParams(window.location.search);
+            var category = urlParams.get('category') || 'unknown';
+            var displayCategory = category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            $('#gallery-title').text(displayCategory + ' Projects');
+            // Load images from images.json
+            $.getJSON('images.json', function(data) {
+                var images = data[category] || [];
+                var galleryGrid = $('#gallery-grid');
+                if (images.length === 0) {
+                    galleryGrid.append('<p>No images available for this category.</p>');
+                } else {
+                    images.forEach(function(img, index) {
+                        var imgHtml = `<a class="fancybox" href="${img}" data-fancybox-group="gallery"><img src="${img}" alt="${displayCategory} Image ${index + 1}" loading="lazy"></a>`;
+                        galleryGrid.append(imgHtml);
+                    });
+                    $('.fancybox').fancybox();
+                }
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.error('Failed to load images.json:', textStatus, errorThrown);
+                $('#error-message').text('Unable to load images for ' + displayCategory + '. Please ensure images.json is available and try again.').show();
+            });
+        });
+    </script>
+</body>
+</html>

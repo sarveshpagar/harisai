@@ -33,52 +33,8 @@ jQuery(document).ready(function ($) {
 
     $('.show-more-btn').click(function () {
         var category = $(this).data('category');
-        var displayCategory = category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-        var galleryWindow = window.open('', '_blank');
-        var images = [];
-        // Generate images up to a reasonable limit, stopping when an image fails to load
-        for (var i = 1; i <= 200; i++) {
-            var imgPath = `images/${category}/image${i}.JPG`;
-            var img = new Image();
-            img.src = imgPath;
-            if (img.complete && img.naturalWidth === 0) {
-                break; // Stop if image doesn't exist
-            }
-            images.push(imgPath);
-        }
-        var galleryHtml = `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="utf-8">
-                <title>${displayCategory} Gallery</title>
-                <link rel="stylesheet" href="css/jquery.fancybox.css?v=2.1.5" />
-                <style>
-                    body { background: #f2f7fa; padding: 20px; font-family: 'futura_ltbook', sans-serif; }
-                    h2 { color: #ffcb0f; text-transform: uppercase; font-family: 'futura_ltbold', sans-serif; }
-                    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-                    .gallery-grid img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
-                    .gallery-grid a { display: block; }
-                    .gallery-grid img[onerror] { display: none; }
-                </style>
-            </head>
-            <body>
-                <h2>${displayCategory} Projects</h2>
-                <div class="gallery-grid">
-                    ${images.map((img, index) => `<a class="fancybo`+`x" href="${img}" data-fancybo`+`x-group="gallery"><img src="${img}" alt="${displayCategory} Image ${index + 1}" loading="lazy"></a>`).join('')}
-                </div>
-                <script src="js/jquery-1.12.1.min.js"></script>
-                <script src="js/jquery.fancybo`+`x.js?v=2.1.5"></script>
-                <script>
-                    $(document).ready(function() {
-                        $('.fancybo`+`x').fancybo`+`x();
-                    });
-                </script>
-            </body>
-            </html>
-        `;
-        galleryWindow.document.write(galleryHtml);
-        galleryWindow.document.close();
+        // Open gallery.html with the category as a URL parameter
+        window.open('gallery.html?category=' + encodeURIComponent(category), '_blank');
     });
 
     $(window).load(function () {
