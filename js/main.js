@@ -40,4 +40,29 @@ jQuery(document).ready(function ($) {
     $(window).load(function () {
         $("#loading").fadeOut(500);
     });
+    $('.hero-content-left .btn.know_btn').hover(
+        function() {
+            $(this).css('transform', 'scale(1.05)');
+        },
+        function() {
+            $(this).css('transform', 'scale(1)');
+        }
+    );
+    $(window).scroll(function() {
+        if ($(window).width() > 767) { // Desktop only
+            var scrollTop = $(this).scrollTop();
+            $('.hero-3d').css('background-position-y', -(scrollTop * 0.2) + 'px');
+        }
+    });
+    // Card click/tap
+    $('.card').on('click touchend', function(e) {
+        e.preventDefault();
+        var category = $(this).data('category');
+        window.location.href = 'gallery.html?category=' + encodeURIComponent(category);
+    });
+    // Mobile tap effect
+    $('.card').on('touchstart', function() {
+        $(this).addClass('touched');
+        setTimeout(() => $(this).removeClass('touched'), 300);
+    });
 });
