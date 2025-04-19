@@ -1044,3 +1044,15 @@ section {
     color: #ffcb0f;
     border: 1px solid #ffcb0f;
 }
+
+/* Existing CSS remains unchanged, append these new styles */
+.admin-container { max-width: 600px; margin: 50px auto; padding: 20px; background: #f9f9f9; border-radius: 10px; }
+.login-form, .upload-form { display: none; }
+.login-form.active, .upload-form.active { display: block; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; }
+.form-group input, .form-group select, .form-group button { width: 100%; padding: 8px; margin-bottom: 10px; }
+.category-select { width: 100%; padding: 8px; }
+#imagePreview { max-width: 200px; margin-top: 10px; display: none; }
+.success-msg { color: green; display: none; }
+.error-msg { color: red; display: none; }
