@@ -7,24 +7,43 @@ exports.handler = async (event, context) => {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
-  console.log('Event received:', JSON.stringify(event, null, 2)); // Detailed debug log
-  const file = event.files && event.files.image;
-  let category = null;
+  console.log('Event received:', JSON.stringify(event, null, 2));
 
-  // Attempt to extract category from multipart/form-data body
-  if (event.body) {
-    const bodyStr = event.body.toString();
-    const categoryMatch = bodyStr.match(/name="category"\r\n\r\n([\w_]+)/);
-    if (categoryMatch && categoryMatch[1]) {
-      category = categoryMatch[1];
-      console.log('Parsed category from body:', category);
+  // Check if this is a preflight request (CORS)
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      },
+      body: ''
+    };
+  }
+
+  const body = event.body || '';
+  let category = null;
+  let fileData = null;
+
+  // Parse multipart/form-data manually (basic approach)
+  if (body.includes('name="category"') && body.includes('name="image"')) {
+    const categoryMatch = body.match(/name="category"\r\n\r\n([\w_]+)/);
+    category = categoryMatch ? categoryMatch[1] : null;
+
+    const fileMatch = body.match(/name="image"; filename="(.+?)"\r\n\r\n([\s\S]*?)(?=\r\n------WebKitFormBoundary)/);
+    if (fileMatch) {
+      fileData = {
+        name: fileMatch[1],
+        data: Buffer.from(fileMatch[2].trim(), 'base64') // Assuming base64 encoding; adjust if binary
+      };
     }
   }
 
   console.log('Received category:', category);
-  console.log('Received file:', file ? file.name : 'No file');
+  console.log('Received file:', fileData ? fileData.name : 'No file');
 
-  if (!file || !category || !['bridge_work', 'road_safety', 'concrete_road', 'building'].includes(category)) {
+  if (!fileData || !category || !['bridge_work', 'road_safety', 'concrete_road', 'building'].includes(category)) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Image and valid category are required' }) };
   }
 
@@ -34,11 +53,11 @@ exports.handler = async (event, context) => {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  const fileName = `${Date.now()}-${file.name}`;
+  const fileName = `${Date.now()}-${fileData.name}`;
   const filePath = path.join(uploadDir, fileName);
 
   try {
-    fs.writeFileSync(filePath, file.data);
+    fs.writeFileSync(filePath, fileData.data);
     const imagesDir = path.join(__dirname, '..', '..', 'images', category);
     if (!fs.existsSync(imagesDir)) {
       fs.mkdirSync(imagesDir, { recursive: true });
@@ -47,6 +66,9 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
       body: JSON.stringify({ success: true, message: 'Image uploaded and will be deployed' })
     };
   } catch (error) {

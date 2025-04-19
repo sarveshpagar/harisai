@@ -377,31 +377,45 @@
   }
 
   const formData = new FormData();
-  formData.append('image', file); // File field
-  formData.append('category', category); // Category field
-  console.log('Sending category:', category); // Debug log
-  console.log('Sending file:', file.name); // Debug log
+  formData.append('image', file);
+  formData.append('category', category);
+  console.log('Sending category:', category);
+  console.log('Sending file:', file.name);
+
+  // Disable button to prevent multiple clicks
+  const uploadButton = document.querySelector('button[onclick="uploadImage()"]');
+  uploadButton.disabled = true;
 
   fetch('/.netlify/functions/upload', {
     method: 'POST',
-    body: formData
+    body: formData,
+    // Ensure CORS headers are handled
+    headers: {
+      'Accept': 'application/json'
+    }
   })
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  })
   .then(data => {
     if (data.success) {
       document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
       document.getElementById('successMsg').style.display = 'block';
       document.getElementById('uploadError').style.display = 'none';
-      location.reload(); // Refresh to show new image
+      location.reload();
     } else {
-      document.getElementById('uploadError').textContent = data.error;
+      document.getElementById('uploadError').textContent = data.error || 'Upload failed';
       document.getElementById('uploadError').style.display = 'block';
     }
   })
   .catch(error => {
-    document.getElementById('uploadError').textContent = 'Error uploading image';
+    document.getElementById('uploadError').textContent = 'Error uploading image: ' + error.message;
     document.getElementById('uploadError').style.display = 'block';
-    console.error('Fetch error:', error); // Debug log
+    console.error('Fetch error:', error);
+  })
+  .finally(() => {
+    uploadButton.disabled = false;
   });
 }
 
