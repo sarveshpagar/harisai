@@ -14,6 +14,18 @@
         <!--[if lt IE 9]>
                 <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
+        <style>
+            .admin-panel { display: none; max-width: 600px; margin: 50px auto; padding: 20px; background: #f9f9f9; border-radius: 10px; }
+            .admin-panel.active { display: block; }
+            .form-group { margin-bottom: 15px; }
+            .form-group label { display: block; margin-bottom: 5px; }
+            .form-group input, .form-group select, .form-group button { width: 100%; padding: 8px; margin-bottom: 10px; }
+            .category-select { width: 100%; padding: 8px; }
+            #imagePreview { max-width: 200px; margin-top: 10px; display: none; }
+            .success-msg { color: green; display: none; }
+            .error-msg { color: red; display: none; }
+            #adminToggle { margin: 10px 0; }
+        </style>
     </head>
     <body>
         <div id="loading">
@@ -63,6 +75,7 @@
                             <li><a href="#services">Services</a></li>
                             <li><a href="#portfolio">Portfolio</a></li>
                             <li><a href="#contact_form">Contact Us</a></li>
+                            <li><a href="#" id="adminToggle">Admin Panel</a></li> <!-- Toggle for admin -->
                         </ul>
                     </div>
                 </div>   
@@ -187,8 +200,6 @@
                 <p>We take pride in the love we put into every design, every construction phase, and every finished building.</p>
                 <div id="filters">
                     <button class="button is-checked" data-filter="*">Show All</button>
-                    <!-- <button class="button" data-filter=".road_kaman">Road Kaman</button>
-                    <button class="button" data-filter=".road_pattii">Road Pattii</button> -->
                     <button class="button" data-filter=".road_safety">Road Safety</button>
                     <button class="button" data-filter=".bridge">Bridge Work</button>
                     <button class="button" data-filter=".concrete">Concrete Road</button>
@@ -256,6 +267,37 @@
             </div>
         </section>
 
+        <div class="admin-panel" id="adminPanel">
+            <h2>Admin Panel</h2>
+            <div class="form-group">
+                <label for="adminPassword">Admin Password:</label>
+                <input type="password" id="adminPassword" required>
+            </div>
+            <button onclick="toggleAdmin()">Enter</button>
+            <p class="error-msg" id="adminError"></p>
+
+            <div id="uploadSection" style="display: none;">
+                <h3>Upload Image</h3>
+                <div class="form-group">
+                    <label for="category">Select Category:</label>
+                    <select id="category" class="category-select">
+                        <option value="bridge_work">Bridge Work</option>
+                        <option value="road_safety">Road Safety</option>
+                        <option value="concrete_road">Concrete Road</option>
+                        <option value="building">Building</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="imageUpload">Upload Image:</label>
+                    <input type="file" id="imageUpload" accept="image/*" required>
+                </div>
+                <img id="imagePreview" alt="Image Preview">
+                <button onclick="uploadImage()">Upload</button>
+                <p class="success-msg" id="successMsg"></p>
+                <p class="error-msg" id="uploadError"></p>
+            </div>
+        </div>
+
         <footer>
             <div class="container footer_top">
                 <div class="row">
@@ -311,5 +353,71 @@
         <script src="js/jquery.fancybox.js?v=2.1.5"></script>
         <script src="js/jquery.scrollUp.min.js"></script>
         <script src="js/main.js"></script>
+        <script>
+            function toggleAdmin() {
+                const password = document.getElementById('adminPassword').value;
+                if (password === 'admin123') { // Hardcoded password (replace with secure auth in production)
+                    document.getElementById('adminPanel').classList.add('active');
+                    document.getElementById('uploadSection').style.display = 'block';
+                    document.getElementById('adminError').style.display = 'none';
+                } else {
+                    document.getElementById('adminError').textContent = 'Incorrect password';
+                    document.getElementById('adminError').style.display = 'block';
+                }
+            }
+
+            function uploadImage() {
+                const category = document.getElementById('category').value;
+                const fileInput = document.getElementById('imageUpload');
+                const file = fileInput.files[0];
+                if (!file) {
+                    document.getElementById('uploadError').textContent = 'Please select an image';
+                    document.getElementById('uploadError').style.display = 'block';
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('category', category);
+
+                fetch('/.netlify/functions/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
+                        document.getElementById('successMsg').style.display = 'block';
+                        document.getElementById('uploadError').style.display = 'none';
+                        location.reload(); // Refresh to show new image
+                    } else {
+                        document.getElementById('uploadError').textContent = data.error;
+                        document.getElementById('uploadError').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('uploadError').textContent = 'Error uploading image';
+                    document.getElementById('uploadError').style.display = 'block';
+                });
+            }
+
+            document.getElementById('imageUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('imagePreview').src = e.target.result;
+                        document.getElementById('imagePreview').style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            document.getElementById('adminToggle').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('adminPanel').classList.add('active');
+            });
+        </script>
     </body>	
 </html>
