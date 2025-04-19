@@ -7,12 +7,22 @@ exports.handler = async (event, context) => {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
-  console.log('Event received:', event); // Debug log
+  console.log('Event received:', JSON.stringify(event, null, 2)); // Detailed debug log
   const file = event.files && event.files.image;
-  const category = event.body ? new URLSearchParams(event.body).get('category') : null;
+  let category = null;
 
-  console.log('Received category:', category); // Debug log
-  console.log('Received file:', file ? file.name : 'No file'); // Debug log
+  // Attempt to extract category from multipart/form-data body
+  if (event.body) {
+    const bodyStr = event.body.toString();
+    const categoryMatch = bodyStr.match(/name="category"\r\n\r\n([\w_]+)/);
+    if (categoryMatch && categoryMatch[1]) {
+      category = categoryMatch[1];
+      console.log('Parsed category from body:', category);
+    }
+  }
+
+  console.log('Received category:', category);
+  console.log('Received file:', file ? file.name : 'No file');
 
   if (!file || !category || !['bridge_work', 'road_safety', 'concrete_road', 'building'].includes(category)) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Image and valid category are required' }) };
