@@ -379,26 +379,25 @@
   const formData = new FormData();
   formData.append('image', file);
   formData.append('category', category);
-  console.log('Sending category:', category);
-  console.log('Sending file:', file.name);
+  console.log('Preparing to send - Category:', category, 'File:', file.name);
 
-  // Disable button to prevent multiple clicks
   const uploadButton = document.querySelector('button[onclick="uploadImage()"]');
   uploadButton.disabled = true;
 
   fetch('/.netlify/functions/upload', {
     method: 'POST',
     body: formData,
-    // Ensure CORS headers are handled
     headers: {
       'Accept': 'application/json'
     }
   })
   .then(response => {
-    if (!response.ok) throw new Error('Network response was not ok');
+    console.log('Response status:', response.status);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   })
   .then(data => {
+    console.log('Response data:', data);
     if (data.success) {
       document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
       document.getElementById('successMsg').style.display = 'block';
@@ -410,9 +409,9 @@
     }
   })
   .catch(error => {
+    console.error('Fetch error:', error);
     document.getElementById('uploadError').textContent = 'Error uploading image: ' + error.message;
     document.getElementById('uploadError').style.display = 'block';
-    console.error('Fetch error:', error);
   })
   .finally(() => {
     uploadButton.disabled = false;
