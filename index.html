@@ -367,40 +367,43 @@
             }
 
             function uploadImage() {
-                const category = document.getElementById('category').value;
-                const fileInput = document.getElementById('imageUpload');
-                const file = fileInput.files[0];
-                if (!file) {
-                    document.getElementById('uploadError').textContent = 'Please select an image';
-                    document.getElementById('uploadError').style.display = 'block';
-                    return;
-                }
+  const category = document.getElementById('category').value;
+  const fileInput = document.getElementById('imageUpload');
+  const file = fileInput.files[0];
+  if (!file) {
+    document.getElementById('uploadError').textContent = 'Please select an image';
+    document.getElementById('uploadError').style.display = 'block';
+    return;
+  }
 
-                const formData = new FormData();
-                formData.append('image', file);
-                formData.append('category', category);
+  const formData = new FormData();
+  formData.append('image', file); // File field
+  formData.append('category', category); // Category field
+  console.log('Sending category:', category); // Debug log
+  console.log('Sending file:', file.name); // Debug log
 
-                fetch('/.netlify/functions/upload', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
-                        document.getElementById('successMsg').style.display = 'block';
-                        document.getElementById('uploadError').style.display = 'none';
-                        location.reload(); // Refresh to show new image
-                    } else {
-                        document.getElementById('uploadError').textContent = data.error;
-                        document.getElementById('uploadError').style.display = 'block';
-                    }
-                })
-                .catch(error => {
-                    document.getElementById('uploadError').textContent = 'Error uploading image';
-                    document.getElementById('uploadError').style.display = 'block';
-                });
-            }
+  fetch('/.netlify/functions/upload', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
+      document.getElementById('successMsg').style.display = 'block';
+      document.getElementById('uploadError').style.display = 'none';
+      location.reload(); // Refresh to show new image
+    } else {
+      document.getElementById('uploadError').textContent = data.error;
+      document.getElementById('uploadError').style.display = 'block';
+    }
+  })
+  .catch(error => {
+    document.getElementById('uploadError').textContent = 'Error uploading image';
+    document.getElementById('uploadError').style.display = 'block';
+    console.error('Fetch error:', error); // Debug log
+  });
+}
 
             document.getElementById('imageUpload').addEventListener('change', function(e) {
                 const file = e.target.files[0];
