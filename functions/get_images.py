@@ -22,7 +22,7 @@ def get_images(tag):
         result = cloudinary.api.resources_by_tag(
             tag,
             resource_type="image",
-            max_results=100  # Adjust as needed
+            max_results=100
         )
         return jsonify(result["resources"])
     except Exception as e:

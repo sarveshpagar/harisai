@@ -41,12 +41,23 @@ jQuery(document).ready(function ($) {
     var displayCategory = category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
     var galleryWindow = window.open('', '_blank');
 
-    fetch(`/.netlify/functions/get_images/${category}`)
+    fetch(`/.netlify/functions/get_images/${category}`, {
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Failed to fetch images for category: ${category} (Status: ${response.status})`);
         }
-        return response.json();
+        return response.text().then(text => {
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            console.error('Raw response:', text);
+            throw new Error('Invalid JSON response: ' + e.message);
+          }
+        });
       })
       .then((data) => {
         var images = data || [];
@@ -131,12 +142,23 @@ function loadGallery(category) {
     return;
   }
 
-  fetch(`/.netlify/functions/get_images/${category}`)
+  fetch(`/.netlify/functions/get_images/${category}`, {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
+  })
     .then((response) => {
       if (!response.ok) {
         throw new Error(`Failed to fetch images for category: ${category} (Status: ${response.status})`);
       }
-      return response.json();
+      return response.text().then(text => {
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          console.error('Raw response:', text);
+          throw new Error('Invalid JSON response: ' + e.message);
+        }
+      });
     })
     .then((data) => {
       if (!data || data.length === 0) {
