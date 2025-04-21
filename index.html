@@ -210,39 +210,27 @@
                     <!-- Road Safety -->
                     <div class="grid-item road_safety">
                         <img alt="Road Safety Project" src="images/road_safety/image1.JPG">
-                        <div class="portfolio_hover_area">
-                            <a class="fancybox" href="images/road_safety/image1.JPG" data-fancybox-group="road_safety" title="Road Safety Project"><span class="fa fa-search"></span></a>
-                            <button class="btn show-more-btn" data-category="road_safety">Show More</button>
-                        </div>
+                        <div class="portfolio_hover_area"></div>
                     </div>
                     <!-- Bridge Work -->
                     <div class="grid-item bridge">
                         <img alt="Bridge Work Project" src="images/bridge_work/image14.JPG">
-                        <div class="portfolio_hover_area">
-                            <a class="fancybox" href="images/bridge_work/image1.JPG" data-fancybox-group="bridge" title="Bridge Work Project"><span class="fa fa-search"></span></a>
-                            <button class="btn show-more-btn" data-category="bridge">Show More</button>
-                        </div>
+                        <div class="portfolio_hover_area"></div>
                     </div>
                     <!-- Concrete Road -->
                     <div class="grid-item concrete">
                         <img alt="Concrete Road Project" src="images/concrete_road/image1.JPG">
-                        <div class="portfolio_hover_area">
-                            <a class="fancybox" href="images/concrete_road/image1.JPG" data-fancybox-group="concrete" title="Concrete Road Project"><span class="fa fa-search"></span></a>
-                            <button class="btn show-more-btn" data-category="concrete">Show More</button>
-                        </div>
+                        <div class="portfolio_hover_area"></div>
                     </div>
                     <!-- New Building -->
                     <div class="grid-item newbuilding">
                         <img alt="New Building Project" src="images/new_building/image1.JPG">
-                        <div class="portfolio_hover_area">
-                            <a class="fancybox" href="images/new_building/image1.JPG" data-fancybox-group="newbuilding" title="New Building Project"><span class="fa fa-search"></span></a>
-                            <button class="btn show-more-btn" data-category="newbuilding">Show More</button>
-                        </div>
+                        <div class="portfolio_hover_area"></div>
                     </div>
                 </div>
             </div>
         </section>
-
+        
         <section id="contact_form">
             <div class="container">
                 <div class="row">
@@ -356,7 +344,7 @@
         <script>
             function toggleAdmin() {
                 const password = document.getElementById('adminPassword').value;
-                if (password === 'admin123') { // Hardcoded password (replace with secure auth in production)
+                if (password === 'admin123') {
                     document.getElementById('adminPanel').classList.add('active');
                     document.getElementById('uploadSection').style.display = 'block';
                     document.getElementById('adminError').style.display = 'none';
@@ -439,14 +427,13 @@
         
                 fetch(`/.netlify/functions/get_images/${category}`, {
                     headers: {
-                        'Cache-Control': 'no-cache' // Prevent caching
+                        'Cache-Control': 'no-cache'
                     }
                 })
                     .then((response) => {
                         if (!response.ok) {
                             throw new Error(`Failed to fetch images for category: ${category} (Status: ${response.status})`);
                         }
-                        // Log raw response for debugging
                         return response.text().then(text => {
                             try {
                                 return JSON.parse(text);
@@ -458,25 +445,45 @@
                     })
                     .then((data) => {
                         if (!data || data.length === 0) {
-                            gallery.innerHTML = `<p class="error-msg">No images found for category: ${category}</p>`;
+                            gallery.innerHTML = `
+                                <p class="error-msg">No images found for category: ${category}</p>
+                                <button class="btn show-more-btn" data-category="${category}">Show More</button>
+                            `;
                             return;
                         }
-                        gallery.innerHTML = data
-                            .map(
-                                (image) => `
-                                <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}" title="${category} Project">
-                                    <img src="${image.secure_url}" alt="${category} Project" loading="lazy">
-                                </a>
-                            `
-                            )
-                            .join('');
+                        gallery.innerHTML = `
+                            ${data
+                                .map(
+                                    (image) => `
+                                    <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}" title="${category} Project">
+                                        <img src="${image.secure_url}?q_auto,f_auto" alt="${category} Project" loading="lazy">
+                                    </a>
+                                `
+                                )
+                                .join('')}
+                            <button class="btn show-more-btn" data-category="${category}">Show More</button>
+                        `;
                         $('.fancybox').fancybox();
                     })
                     .catch((error) => {
                         console.error('Error loading gallery:', error);
-                        gallery.innerHTML = `<p class="error-msg">Error loading gallery: ${error.message}</p>`;
+                        gallery.innerHTML = `
+                            <p class="error-msg">Error loading gallery: ${error.message}</p>
+                            <button class="btn show-more-btn" data-category="${category}">Show More</button>
+                        `;
+                        // Reattach Show More button event listener
+                        document.querySelector(`.grid-item.${category} .show-more-btn`).addEventListener('click', () => {
+                            $('.show-more-btn[data-category="' + category + '"]').click();
+                        });
                     });
             }
+        
+            // Initialize galleries on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                ['road_safety', 'bridge', 'concrete', 'newbuilding'].forEach(category => {
+                    loadGallery(category);
+                });
+            });
         </script>
     </body>	
 </html>

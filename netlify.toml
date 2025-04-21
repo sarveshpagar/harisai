@@ -3,7 +3,14 @@
   publish = "./"
   functions = "functions"
 
-# Redirect all non-function requests to index.html for SPA
+# Route API requests to Netlify Functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
+
+# SPA redirect for all other requests
 [[redirects]]
   from = "/*"
   to = "/index.html"

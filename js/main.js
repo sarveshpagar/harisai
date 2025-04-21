@@ -85,7 +85,7 @@ jQuery(document).ready(function ($) {
                   ? images
                       .map(
                         (img, index) =>
-                          `<a class="fancybox" href="${img.secure_url}" data-fancybox-group="gallery"><img src="${img.secure_url}" alt="${displayCategory} Image ${index + 1}" loading="lazy"></a>`
+                          `<a class="fancybox" href="${img.secure_url}" data-fancybox-group="gallery"><img src="${img.secure_url}?q_auto,f_auto" alt="${displayCategory} Image ${index + 1}" loading="lazy"></a>`
                       )
                       .join('')
                   : '<p>No images found for this category.</p>'
@@ -162,22 +162,35 @@ function loadGallery(category) {
     })
     .then((data) => {
       if (!data || data.length === 0) {
-        gallery.innerHTML = `<p class="error-msg">No images found for category: ${category}</p>`;
+        gallery.innerHTML = `
+          <p class="error-msg">No images found for category: ${category}</p>
+          <button class="btn show-more-btn" data-category="${category}">Show More</button>
+        `;
         return;
       }
-      gallery.innerHTML = data
-        .map(
-          (image) => `
+      gallery.innerHTML = `
+        ${data
+          .map(
+            (image) => `
             <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}" title="${category} Project">
-              <img src="${image.secure_url}" alt="${category} Project" loading="lazy">
+              <img src="${image.secure_url}?q_auto,f_auto" alt="${category} Project" loading="lazy">
             </a>
           `
-        )
-        .join('');
+          )
+          .join('')}
+        <button class="btn show-more-btn" data-category="${category}">Show More</button>
+      `;
       $('.fancybox').fancybox();
     })
     .catch((error) => {
       console.error('Error loading gallery:', error);
-      gallery.innerHTML = `<p class="error-msg">Error loading gallery: ${error.message}</p>`;
+      gallery.innerHTML = `
+        <p class="error-msg">Error loading gallery: ${error.message}</p>
+        <button class="btn show-more-btn" data-category="${category}">Show More</button>
+      `;
+      // Reattach Show More button event listener
+      document.querySelector(`.grid-item.${category} .show-more-btn`).addEventListener('click', () => {
+        $('.show-more-btn[data-category="' + category + '"]').click();
+      });
     });
 }
