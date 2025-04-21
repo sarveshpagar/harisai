@@ -1,21 +1,26 @@
 "use strict";
 jQuery(document).ready(function ($) {
+  // Smooth scrolling for navbar links
   $('#navbar-menu').find('a[href*="#"]:not([href="#"])').click(function () {
-    if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+    if (
+      location.pathname.replace(/^\//, '') === this.pathname.replace(/^\//, '') &&
+      location.hostname === this.hostname
+    ) {
       var target = $(this.hash);
       target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
       if (target.length) {
-        $('html,body').animate({
-          scrollTop: (target.offset().top - 0)
+        $('html, body').animate({
+          scrollTop: target.offset().top
         }, 1000);
-        if ($('.navbar-toggle').css('display') != 'none') {
-          $(this).parents('.container').find(".navbar-toggle").trigger("click");
+        if ($('.navbar-toggle').css('display') !== 'none') {
+          $(this).parents('.container').find('.navbar-toggle').trigger('click');
         }
         return false;
       }
     }
   });
 
+  // Show/hide scroll-to-top button
   $(window).scroll(function () {
     if ($(this).scrollTop() > 600) {
       $('#scrollUp').fadeIn('slow');
@@ -24,81 +29,134 @@ jQuery(document).ready(function ($) {
     }
   });
 
+  // Scroll to top on click
   $('#scrollUp').click(function () {
-    $("html, body").animate({scrollTop: 0}, 1000);
+    $('html, body').animate({ scrollTop: 0 }, 1000);
     return false;
   });
 
-  $('.fancybox').fancybox();
-
+  // Handle "Show More" button click to open gallery window
   $('.show-more-btn').click(function () {
     var category = $(this).data('category');
     var displayCategory = category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
     var galleryWindow = window.open('', '_blank');
-    var images = [];
-    for (var i = 1; i <= 200; i++) {
-      var imgPath = `images/${category}/image${i}.JPG`;
-      var img = new Image();
-      img.src = imgPath;
-      if (img.complete && img.naturalWidth === 0) {
-        break;
-      }
-      images.push(imgPath);
-    }
-    var galleryHtml = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="utf-8">
-        <title>${displayCategory} Gallery</title>
-        <link rel="stylesheet" href="css/jquery.fancybox.css?v=2.1.5" />
-        <style>
-          body { background: #f2f7fa; padding: 20px; font-family: 'futura_ltbook', sans-serif; }
-          h2 { color: #ffcb0f; text-transform: uppercase; font-family: 'futura_ltbold', sans-serif; }
-          .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-          .gallery-grid img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
-          .gallery-grid a { display: block; }
-          .gallery-grid img[onerror] { display: none; }
-        </style>
-      </head>
-      <body>
-        <h2>${displayCategory} Projects</h2>
-        <div class="gallery-grid">
-          ${images.map((img, index) => `<a class="fancybox" href="${img}" data-fancybox-group="gallery"><img src="${img}" alt="${displayCategory} Image ${index + 1}" loading="lazy"></a>`).join('')}
-        </div>
-        <script src="js/jquery-1.12.1.min.js"></script>
-        <script src="js/jquery.fancybox.js?v=2.1.5"></script>
-        <script>
-          $(document).ready(function() {
-            $('.fancybox').fancybox();
-          });
-        </script>
-      </body>
-      </html>
-    `;
-    galleryWindow.document.write(galleryHtml);
-    galleryWindow.document.close();
+
+    fetch(`https://res.cloudinary.com/djbxxkpji/image/list/${category}.json`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch images for category: ${category} (Status: ${response.status})`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        var images = data.resources || [];
+        var galleryHtml = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <title>${displayCategory} Gallery</title>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" />
+            <style>
+              body { background: #f2f7fa; padding: 20px; font-family: 'futura_ltbook', sans-serif; }
+              h2 { color: #ffcb0f; text-transform: uppercase; font-family: 'futura_ltbold', sans-serif; }
+              .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+              .gallery-grid img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
+              .gallery-grid a { display: block; }
+              .gallery-grid img[onerror] { display: none; }
+            </style>
+          </head>
+          <body>
+            <h2>${displayCategory} Projects</h2>
+            <div class="gallery-grid">
+              ${
+                images.length > 0
+                  ? images
+                      .map(
+                        (img, index) =>
+                          `<a class="fancybox" href="${img.secure_url}" data-fancybox-group="gallery"><img src="${img.secure_url}" alt="${displayCategory} Image ${index + 1}" loading="lazy"></a>`
+                      )
+                      .join('')
+                  : '<p>No images found for this category.</p>'
+              }
+            </div>
+            <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
+            <script>
+              $(document).ready(function() {
+                $('.fancybox').fancybox();
+              });
+            </script>
+          </body>
+          </html>
+        `;
+        galleryWindow.document.write(galleryHtml);
+        galleryWindow.document.close();
+      })
+      .catch((error) => {
+        console.error('Error fetching gallery images:', error);
+        var galleryHtml = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <title>${displayCategory} Gallery</title>
+            <style>
+              body { background: #f2f7fa; padding: 20px; font-family: 'futura_ltbook', sans-serif; }
+              h2 { color: #ffcb0f; text-transform: uppercase; font-family: 'futura_ltbold', sans-serif; }
+            </style>
+          </head>
+          <body>
+            <h2>${displayCategory} Projects</h2>
+            <p>Error loading images: ${error.message}</p>
+          </body>
+          </html>
+        `;
+        galleryWindow.document.write(galleryHtml);
+        galleryWindow.document.close();
+      });
   });
 
+  // Fade out loading animation on window load
   $(window).load(function () {
-    $("#loading").fadeOut(500);
+    $('#loading').fadeOut(500);
   });
 });
 
+// Load gallery images for a specific category
 function loadGallery(category) {
-    const gallery = document.querySelector(`.grid-item.${category} .portfolio_hover_area`);
-    fetch(`https://res.cloudinary.com/djbxxkpji/image/list/${category}.json`)
-        .then((response) => response.json())
-        .then((data) => {
-            gallery.innerHTML = data.resources
-                .map(
-                    (image) => `
-                    <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}">
-                        <img src="${image.secure_url}" alt="${category} Project">
-                    </a>
-                `
-                )
-                .join('');
-        })
-        .catch((error) => console.error('Error loading gallery:', error));
+  const gallery = document.querySelector(`.grid-item.${category} .portfolio_hover_area`);
+  if (!gallery) {
+    console.error(`Gallery container not found for category: ${category}`);
+    return;
+  }
+
+  fetch(`https://res.cloudinary.com/djbxxkpji/image/list/${category}.json`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch images for category: ${category} (Status: ${response.status})`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (!data.resources || data.resources.length === 0) {
+        gallery.innerHTML = `<p class="error-msg">No images found for category: ${category}</p>`;
+        return;
+      }
+      gallery.innerHTML = data.resources
+        .map(
+          (image) => `
+            <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}" title="${category} Project">
+              <img src="${image.secure_url}" alt="${category} Project" loading="lazy">
+            </a>
+          `
+        )
+        .join('');
+      // Reinitialize Fancybox for new images
+      $('.fancybox').fancybox();
+    })
+    .catch((error) => {
+      console.error('Error loading gallery:', error);
+      gallery.innerHTML = `<p class="error-msg">Error loading gallery: ${error.message}</p>`;
+    });
 }
