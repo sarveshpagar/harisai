@@ -130,7 +130,7 @@ nav.navbar.bootsnav ul.nav > li > a:hover, nav.navbar.bootsnav ul.nav > li > a:f
 }
 .navbar-brand .text-logo {
     font-family: 'futura_ltbold', sans-serif;
-    font-size: 28px;
+    font-size: 40px;
     color: #ffcb0f;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -180,7 +180,7 @@ nav.navbar.bootsnav ul.nav > li > a:hover, nav.navbar.bootsnav ul.nav > li > a:f
     animation: fadeIn 1s ease-in;
 }
 .hero-content-left h1 {
-    font-size: 60px;
+    font-size: 50px;
     color: #ffcb0f;
     margin-bottom: 20px;
     font-family: 'futura_ltbold', sans-serif;
@@ -191,7 +191,7 @@ nav.navbar.bootsnav ul.nav > li > a:hover, nav.navbar.bootsnav ul.nav > li > a:f
 }
 .hero-content-left .btn.know_btn {
     padding: 15px 30px;
-    font-size: 18px;
+    font-size: 14px;
     border-radius: 10px;
     background: #ffcb0f;
     color: #fff;
@@ -273,7 +273,8 @@ nav.navbar.bootsnav ul.nav > li > a:hover, nav.navbar.bootsnav ul.nav > li > a:f
     text-transform: inherit;
 }
 .about_content > p {
-    line-height: 18px;
+    font-size: 25px;
+    line-height: 28px;
     margin-bottom: 18px;
     text-align: justify;
 }
@@ -1043,4 +1044,53 @@ section {
     background: transparent;
     color: #ffcb0f;
     border: 1px solid #ffcb0f;
+}
+
+/* Popup Menu Styles */
+.has-popup {
+    position: relative;
+}
+.popup-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #222533;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    min-width: 200px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.has-popup:hover .popup-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+.popup-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.popup-list li {
+    padding: 8px 0;
+}
+.popup-list li a {
+    color: #fff;
+    text-decoration: none;
+    font-family: 'futura_ltbook', sans-serif;
+    transition: color 0.3s ease;
+}
+.popup-list li a:hover {
+    color: #ffcb0f;
+}
+
+/* Ensure navigation items have enough space for popup */
+nav.navbar.bootsnav ul.nav > li {
+    margin-right: 20px;
+    position: relative;
 }
