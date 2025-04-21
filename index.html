@@ -385,6 +385,7 @@
                 formData.append('file', file);
                 formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
                 formData.append('folder', category); // Save the image in a folder named after the category
+                formData.append('tags', category); // Assign the category as a tag
 
                 fetch(CLOUDINARY_URL, {
                     method: 'POST',
@@ -434,7 +435,7 @@
 
             function loadGallery(category) {
                 const gallery = document.querySelector(`.grid-item.${category} .portfolio_hover_area`);
-                fetch(`https://res.cloudinary.com/djbxxkpji/image/list/${category}.json`)
+                fetch(`https://res.cloudinary.com/djbxxkpji/resources/image/tags/${category}`)
                     .then((response) => response.json())
                     .then((data) => {
                         console.log(data); // Log the response
