@@ -230,7 +230,6 @@
                 </div>
             </div>
         </section>
-        
         <section id="contact_form">
             <div class="container">
                 <div class="row">
@@ -342,148 +341,148 @@
         <script src="js/main.js"></script>
         <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
         <script>
-            function toggleAdmin() {
-                const password = document.getElementById('adminPassword').value;
-                if (password === 'admin123') {
-                    document.getElementById('adminPanel').classList.add('active');
-                    document.getElementById('uploadSection').style.display = 'block';
-                    document.getElementById('adminError').style.display = 'none';
-                } else {
-                    document.getElementById('adminError').textContent = 'Incorrect password';
-                    document.getElementById('adminError').style.display = 'block';
-                }
-            }
-        
-            const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/djbxxkpji/image/upload';
-            const CLOUDINARY_UPLOAD_PRESET = 'harisai';
-        
-            function uploadImage() {
-                const category = document.getElementById('category').value;
-                const fileInput = document.getElementById('imageUpload');
-                const file = fileInput.files[0];
-        
-                if (!file) {
-                    document.getElementById('uploadError').textContent = 'Please select an image';
-                    document.getElementById('uploadError').style.display = 'block';
-                    return;
-                }
-        
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-                formData.append('folder', category);
-                formData.append('tags', category);
-        
-                fetch(CLOUDINARY_URL, {
-                    method: 'POST',
-                    body: formData,
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.secure_url) {
-                            document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
-                            document.getElementById('successMsg').style.display = 'block';
-                            document.getElementById('uploadError').style.display = 'none';
-        
-                            const imagePreview = document.getElementById('imagePreview');
-                            imagePreview.src = data.secure_url;
-                            imagePreview.style.display = 'block';
-        
-                            loadGallery(category);
-                        } else {
-                            throw new Error('Upload failed');
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Error uploading image:', error);
-                        document.getElementById('uploadError').textContent = 'Error uploading image: ' + error.message;
-                        document.getElementById('uploadError').style.display = 'block';
-                    });
-            }
-        
-            document.getElementById('imageUpload').addEventListener('change', function (e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        document.getElementById('imagePreview').src = e.target.result;
-                        document.getElementById('imagePreview').style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        
-            document.getElementById('adminToggle').addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('adminPanel').classList.add('active');
-            });
-        
-            function loadGallery(category) {
-                const gallery = document.querySelector(`.grid-item.${category} .portfolio_hover_area`);
-                if (!gallery) {
-                    console.error(`Gallery container not found for category: ${category}`);
-                    return;
-                }
-        
-                fetch(`/.netlify/functions/get_images/${category}`, {
-                    headers: {
-                        'Cache-Control': 'no-cache'
-                    }
-                })
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error(`Failed to fetch images for category: ${category} (Status: ${response.status})`);
-                        }
-                        return response.text().then(text => {
-                            try {
-                                return JSON.parse(text);
-                            } catch (e) {
-                                console.error('Raw response:', text);
-                                throw new Error('Invalid JSON response: ' + e.message);
-                            }
-                        });
-                    })
-                    .then((data) => {
-                        if (!data || data.length === 0) {
-                            gallery.innerHTML = `
-                                <p class="error-msg">No images found for category: ${category}</p>
-                                <button class="btn show-more-btn" data-category="${category}">Show More</button>
-                            `;
-                            return;
-                        }
-                        gallery.innerHTML = `
-                            ${data
-                                .map(
-                                    (image) => `
-                                    <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}" title="${category} Project">
-                                        <img src="${image.secure_url}?q_auto,f_auto" alt="${category} Project" loading="lazy">
-                                    </a>
-                                `
-                                )
-                                .join('')}
-                            <button class="btn show-more-btn" data-category="${category}">Show More</button>
-                        `;
-                        $('.fancybox').fancybox();
-                    })
-                    .catch((error) => {
-                        console.error('Error loading gallery:', error);
-                        gallery.innerHTML = `
-                            <p class="error-msg">Error loading gallery: ${error.message}</p>
-                            <button class="btn show-more-btn" data-category="${category}">Show More</button>
-                        `;
-                        // Reattach Show More button event listener
-                        document.querySelector(`.grid-item.${category} .show-more-btn`).addEventListener('click', () => {
-                            $('.show-more-btn[data-category="' + category + '"]').click();
-                        });
-                    });
-            }
-        
-            // Initialize galleries on page load
-            document.addEventListener('DOMContentLoaded', function() {
-                ['road_safety', 'bridge', 'concrete', 'newbuilding'].forEach(category => {
+    // Hardcoded Cloudinary credentials (replace with your actual credentials)
+    const CLOUDINARY_CLOUD_NAME = 'djbxxkpji';
+    const CLOUDINARY_API_KEY = '776273213436843'; // Replace with your Cloudinary API Key
+    const CLOUDINARY_API_SECRET = '7PjEFF4jrN8akBiHvcBO7MaG2bY'; // Replace with your Cloudinary API Secret
+    const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+    const CLOUDINARY_UPLOAD_PRESET = 'harisai';
+    const CLOUDINARY_API_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/resources/image/tags`;
+
+    function toggleAdmin() {
+        const password = document.getElementById('adminPassword').value;
+        if (password === 'admin123') { // Replace with secure auth in production
+            document.getElementById('adminPanel').classList.add('active');
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('adminError').style.display = 'none';
+        } else {
+            document.getElementById('adminError').textContent = 'Incorrect password';
+            document.getElementById('adminError').style.display = 'block';
+        }
+    }
+
+    function uploadImage() {
+        const category = document.getElementById('category').value;
+        const fileInput = document.getElementById('imageUpload');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            document.getElementById('uploadError').textContent = 'Please select an image';
+            document.getElementById('uploadError').style.display = 'block';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        formData.append('folder', category);
+        formData.append('tags', category);
+
+        fetch(CLOUDINARY_UPLOAD_URL, {
+            method: 'POST',
+            body: formData,
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.secure_url) {
+                    document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
+                    document.getElementById('successMsg').style.display = 'block';
+                    document.getElementById('uploadError').style.display = 'none';
+
+                    const imagePreview = document.getElementById('imagePreview');
+                    imagePreview.src = data.secure_url;
+                    imagePreview.style.display = 'block';
+
                     loadGallery(category);
+                } else {
+                    throw new Error('Upload failed');
+                }
+            })
+            .catch((error) => {
+                console.error('Error uploading image:', error);
+                document.getElementById('uploadError').textContent = 'Error uploading image: ' + error.message;
+                document.getElementById('uploadError').style.display = 'block';
+            });
+    }
+
+    document.getElementById('imageUpload').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('imagePreview').src = e.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('adminToggle').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('adminPanel').classList.add('active');
+    });
+
+    function loadGallery(category) {
+        const gallery = document.querySelector(`.grid-item.${category} .portfolio_hover_area`);
+        if (!gallery) {
+            console.error(`Gallery container not found for category: ${category}`);
+            return;
+        }
+
+        fetch(`${CLOUDINARY_API_URL}/${category}?max_results=100`, {
+            headers: {
+                'Authorization': 'Basic ' + btoa(`${CLOUDINARY_API_KEY}:${CLOUDINARY_API_SECRET}`),
+                'Cache-Control': 'no-cache'
+            }
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch images for category: ${category} (Status: ${response.status})`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                const images = data.resources || [];
+                if (images.length === 0) {
+                    gallery.innerHTML = `
+                        <p class="error-msg">No images found for category: ${category}</p>
+                        <button class="btn show-more-btn" data-category="${category}">Show More</button>
+                    `;
+                    return;
+                }
+                gallery.innerHTML = `
+                    ${images
+                        .map(
+                            (image) => `
+                            <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}" title="${category} Project">
+                                <img src="${image.secure_url}?q_auto,f_auto" alt="${category} Project" loading="lazy">
+                            </a>
+                        `
+                        )
+                        .join('')}
+                    <button class="btn show-more-btn" data-category="${category}">Show More</button>
+                `;
+                $('.fancybox').fancybox();
+            })
+            .catch((error) => {
+                console.error('Error loading gallery:', error);
+                gallery.innerHTML = `
+                    <p class="error-msg">Error loading gallery: ${error.message}</p>
+                    <button class="btn show-more-btn" data-category="${category}">Show More</button>
+                `;
+                // Reattach Show More button event listener
+                document.querySelector(`.grid-item.${category} .show-more-btn`).addEventListener('click', () => {
+                    $('.show-more-btn[data-category="' + category + '"]').click();
                 });
             });
-        </script>
+    }
+
+    // Initialize galleries on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        ['road_safety', 'bridge', 'concrete', 'newbuilding'].forEach(category => {
+            loadGallery(category);
+        });
+    });
+</script>
     </body>	
 </html>
