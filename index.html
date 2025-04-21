@@ -353,6 +353,7 @@
         <script src="js/jquery.fancybox.js?v=2.1.5"></script>
         <script src="js/jquery.scrollUp.min.js"></script>
         <script src="js/main.js"></script>
+        <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
         <script>
             function toggleAdmin() {
                 const password = document.getElementById('adminPassword').value;
@@ -366,6 +367,9 @@
                 }
             }
 
+            const CLOUDINARY_URL = 'cloudinary://776273213436843:7PjEFF4jrN8akBiHvcBO7MaG2bY@djbxxkpji/image/upload';
+            const CLOUDINARY_UPLOAD_PRESET = 'harisai';
+
             function uploadImage() {
                 const category = document.getElementById('category').value;
                 const fileInput = document.getElementById('imageUpload');
@@ -378,42 +382,44 @@
                 }
 
                 const formData = new FormData();
-                formData.append('image', file);
-                formData.append('category', category);
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                formData.append('folder', category); // Save the image in a folder named after the category
 
-                fetch('/.netlify/functions/upload', {
+                fetch(CLOUDINARY_URL, {
                     method: 'POST',
                     body: formData,
                 })
-                .then((response) => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then((data) => {
-                    if (data.success) {
-                        document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
-                        document.getElementById('successMsg').style.display = 'block';
-                        document.getElementById('uploadError').style.display = 'none';
-                    } else {
-                        document.getElementById('uploadError').textContent = data.error || 'Upload failed';
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.secure_url) {
+                            document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
+                            document.getElementById('successMsg').style.display = 'block';
+                            document.getElementById('uploadError').style.display = 'none';
+
+                            // Display the uploaded image
+                            const imagePreview = document.getElementById('imagePreview');
+                            imagePreview.src = data.secure_url;
+                            imagePreview.style.display = 'block';
+                        } else {
+                            throw new Error('Upload failed');
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error uploading image:', error);
+                        document.getElementById('uploadError').textContent = 'Error uploading image: ' + error.message;
                         document.getElementById('uploadError').style.display = 'block';
-                    }
-                })
-                .catch((error) => {
-                    console.error('Fetch error:', error);
-                    document.getElementById('uploadError').textContent = 'Error uploading image: ' + error.message;
-                    document.getElementById('uploadError').style.display = 'block';
-                });
+                    });
             }
 
-            document.getElementById('imageUpload').addEventListener('change', function(e) {
+            document.getElementById('imageUpload').addEventListener('change', function (e) {
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         document.getElementById('imagePreview').src = e.target.result;
                         document.getElementById('imagePreview').style.display = 'block';
-                    }
+                    };
                     reader.readAsDataURL(file);
                 }
             });

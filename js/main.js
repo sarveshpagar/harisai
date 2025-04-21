@@ -84,3 +84,21 @@ jQuery(document).ready(function ($) {
     $("#loading").fadeOut(500);
   });
 });
+
+function loadGallery(category) {
+    const gallery = document.querySelector(`.grid-item.${category} .portfolio_hover_area`);
+    fetch(`https://res.cloudinary.com/djbxxkpji/image/list/${category}.json`)
+        .then((response) => response.json())
+        .then((data) => {
+            gallery.innerHTML = data.resources
+                .map(
+                    (image) => `
+                    <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}">
+                        <img src="${image.secure_url}" alt="${category} Project">
+                    </a>
+                `
+                )
+                .join('');
+        })
+        .catch((error) => console.error('Error loading gallery:', error));
+}
