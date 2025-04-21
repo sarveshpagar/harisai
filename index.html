@@ -367,56 +367,44 @@
             }
 
             function uploadImage() {
-  const category = document.getElementById('category').value;
-  const fileInput = document.getElementById('imageUpload');
-  const file = fileInput.files[0];
-  if (!file) {
-    document.getElementById('uploadError').textContent = 'Please select an image';
-    document.getElementById('uploadError').style.display = 'block';
-    return;
-  }
+                const category = document.getElementById('category').value;
+                const fileInput = document.getElementById('imageUpload');
+                const file = fileInput.files[0];
 
-  const formData = new FormData();
-  formData.append('image', file);
-  formData.append('category', category);
-  console.log('Preparing to send - Category:', category, 'File:', file.name);
+                if (!file) {
+                    document.getElementById('uploadError').textContent = 'Please select an image';
+                    document.getElementById('uploadError').style.display = 'block';
+                    return;
+                }
 
-  const uploadButton = document.querySelector('button[onclick="uploadImage()"]');
-  uploadButton.disabled = true;
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('category', category);
 
-  fetch('/.netlify/functions/upload', {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'Accept': 'application/json'
-    }
-  })
-  .then(response => {
-    console.log('Response status:', response.status);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    return response.json();
-  })
-  .then(data => {
-    console.log('Response data:', data);
-    if (data.success) {
-      document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
-      document.getElementById('successMsg').style.display = 'block';
-      document.getElementById('uploadError').style.display = 'none';
-      location.reload();
-    } else {
-      document.getElementById('uploadError').textContent = data.error || 'Upload failed';
-      document.getElementById('uploadError').style.display = 'block';
-    }
-  })
-  .catch(error => {
-    console.error('Fetch error:', error);
-    document.getElementById('uploadError').textContent = 'Error uploading image: ' + error.message;
-    document.getElementById('uploadError').style.display = 'block';
-  })
-  .finally(() => {
-    uploadButton.disabled = false;
-  });
-}
+                fetch('/.netlify/functions/upload', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then((response) => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data.success) {
+                        document.getElementById('successMsg').textContent = 'Image uploaded successfully!';
+                        document.getElementById('successMsg').style.display = 'block';
+                        document.getElementById('uploadError').style.display = 'none';
+                    } else {
+                        document.getElementById('uploadError').textContent = data.error || 'Upload failed';
+                        document.getElementById('uploadError').style.display = 'block';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Fetch error:', error);
+                    document.getElementById('uploadError').textContent = 'Error uploading image: ' + error.message;
+                    document.getElementById('uploadError').style.display = 'block';
+                });
+            }
 
             document.getElementById('imageUpload').addEventListener('change', function(e) {
                 const file = e.target.files[0];
