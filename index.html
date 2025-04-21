@@ -401,6 +401,9 @@
                             const imagePreview = document.getElementById('imagePreview');
                             imagePreview.src = data.secure_url;
                             imagePreview.style.display = 'block';
+
+                            // Update the gallery dynamically
+                            loadGallery(category);
                         } else {
                             throw new Error('Upload failed');
                         }
@@ -428,6 +431,25 @@
                 e.preventDefault();
                 document.getElementById('adminPanel').classList.add('active');
             });
+
+            function loadGallery(category) {
+                const gallery = document.querySelector(`.grid-item.${category} .portfolio_hover_area`);
+                fetch(`https://res.cloudinary.com/djbxxkpji/image/list/${category}.json`)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log(data); // Log the response
+                        gallery.innerHTML = data.resources
+                            .map(
+                                (image) => `
+                                <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}">
+                                    <img src="${image.secure_url}" alt="${category} Project">
+                                </a>
+                            `
+                            )
+                            .join('');
+                    })
+                    .catch((error) => console.error('Error loading gallery:', error));
+            }
         </script>
     </body>	
 </html>
