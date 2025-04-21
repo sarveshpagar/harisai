@@ -41,7 +41,7 @@ jQuery(document).ready(function ($) {
     var displayCategory = category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
     var galleryWindow = window.open('', '_blank');
 
-    fetch(`https://res.cloudinary.com/djbxxkpji/image/list/${category}.json`)
+    fetch(`/.netlify/functions/get_images/${category}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Failed to fetch images for category: ${category} (Status: ${response.status})`);
@@ -49,7 +49,7 @@ jQuery(document).ready(function ($) {
         return response.json();
       })
       .then((data) => {
-        var images = data.resources || [];
+        var images = data || [];
         var galleryHtml = `
           <!DOCTYPE html>
           <html lang="en">
@@ -58,8 +58,8 @@ jQuery(document).ready(function ($) {
             <title>${displayCategory} Gallery</title>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" />
             <style>
-              body { background: #f2f7fa; padding: 20px; font-family: 'futura_ltbook', sans-serif; }
-              h2 { color: #ffcb0f; text-transform: uppercase; font-family: 'futura_ltbold', sans-serif; }
+              body { background: #f2f7fa; padding: 20px; font-family: sans-serif; }
+              h2 { color: #ffcb0f; text-transform: uppercase; font-family: sans-serif; }
               .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
               .gallery-grid img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
               .gallery-grid a { display: block; }
@@ -102,8 +102,8 @@ jQuery(document).ready(function ($) {
             <meta charset="utf-8">
             <title>${displayCategory} Gallery</title>
             <style>
-              body { background: #f2f7fa; padding: 20px; font-family: 'futura_ltbook', sans-serif; }
-              h2 { color: #ffcb0f; text-transform: uppercase; font-family: 'futura_ltbold', sans-serif; }
+              body { background: #f2f7fa; padding: 20px; font-family: sans-serif; }
+              h2 { color: #ffcb0f; text-transform: uppercase; font-family: sans-serif; }
             </style>
           </head>
           <body>
@@ -131,7 +131,7 @@ function loadGallery(category) {
     return;
   }
 
-  fetch(`https://res.cloudinary.com/djbxxkpji/image/list/${category}.json`)
+  fetch(`/.netlify/functions/get_images/${category}`)
     .then((response) => {
       if (!response.ok) {
         throw new Error(`Failed to fetch images for category: ${category} (Status: ${response.status})`);
@@ -139,11 +139,11 @@ function loadGallery(category) {
       return response.json();
     })
     .then((data) => {
-      if (!data.resources || data.resources.length === 0) {
+      if (!data || data.length === 0) {
         gallery.innerHTML = `<p class="error-msg">No images found for category: ${category}</p>`;
         return;
       }
-      gallery.innerHTML = data.resources
+      gallery.innerHTML = data
         .map(
           (image) => `
             <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}" title="${category} Project">
@@ -152,7 +152,6 @@ function loadGallery(category) {
           `
         )
         .join('');
-      // Reinitialize Fancybox for new images
       $('.fancybox').fancybox();
     })
     .catch((error) => {

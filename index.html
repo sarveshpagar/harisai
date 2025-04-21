@@ -383,8 +383,8 @@
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-                formData.append('folder', category); // Save the image in a folder named after the category
-                formData.append('tags', category); // Assign the category as a tag
+                formData.append('folder', category);
+                formData.append('tags', category);
         
                 fetch(CLOUDINARY_URL, {
                     method: 'POST',
@@ -397,12 +397,10 @@
                             document.getElementById('successMsg').style.display = 'block';
                             document.getElementById('uploadError').style.display = 'none';
         
-                            // Display the uploaded image
                             const imagePreview = document.getElementById('imagePreview');
                             imagePreview.src = data.secure_url;
                             imagePreview.style.display = 'block';
         
-                            // Update the gallery dynamically
                             loadGallery(category);
                         } else {
                             throw new Error('Upload failed');
@@ -434,20 +432,24 @@
         
             function loadGallery(category) {
                 const gallery = document.querySelector(`.grid-item.${category} .portfolio_hover_area`);
-                fetch(`https://res.cloudinary.com/djbxxkpji/image/list/${category}.json`)
+                if (!gallery) {
+                    console.error(`Gallery container not found for category: ${category}`);
+                    return;
+                }
+        
+                fetch(`/.netlify/functions/get_images/${category}`)
                     .then((response) => {
                         if (!response.ok) {
-                            throw new Error(`Failed to fetch images for category: ${category}`);
+                            throw new Error(`Failed to fetch images for category: ${category} (Status: ${response.status})`);
                         }
                         return response.json();
                     })
                     .then((data) => {
-                        console.log(data); // Log the response for debugging
-                        if (!data.resources || data.resources.length === 0) {
+                        if (!data || data.length === 0) {
                             gallery.innerHTML = `<p class="error-msg">No images found for category: ${category}</p>`;
                             return;
                         }
-                        gallery.innerHTML = data.resources
+                        gallery.innerHTML = data
                             .map(
                                 (image) => `
                                 <a class="fancybox" href="${image.secure_url}" data-fancybox-group="${category}" title="${category} Project">
@@ -456,7 +458,6 @@
                             `
                             )
                             .join('');
-                        // Reinitialize Fancybox for new images
                         $('.fancybox').fancybox();
                     })
                     .catch((error) => {
