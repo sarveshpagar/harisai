@@ -53,11 +53,6 @@
             color: #ff0000;
             font-size: 16px;
         }
-        .loading {
-            text-align: center;
-            font-size: 18px;
-            color: #666;
-        }
     </style>
 </head>
 <body>
@@ -69,47 +64,26 @@
     <script src="js/jquery.fancybox.js?v=2.1.5"></script>
     <script>
         $(document).ready(function() {
+            // Get category from URL parameter
             var urlParams = new URLSearchParams(window.location.search);
             var category = urlParams.get('category') || 'unknown';
             var displayCategory = category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
             $('#gallery-title').text(displayCategory + ' Projects');
-
-            // Show loading state
-            $('#gallery-grid').html('<div class="loading">Loading images...</div>');
-
+            // Load images from images.json
             $.getJSON('images.json', function(data) {
                 var images = data[category] || [];
                 var galleryGrid = $('#gallery-grid');
-                var maxImages = 200; // Limit to 50 images
-                var limitedImages = images.slice(0, maxImages);
-
-                if (limitedImages.length === 0) {
-                    galleryGrid.html('<p>No images available for this category.</p>');
+                if (images.length === 0) {
+                    galleryGrid.append('<p>No images available for this category.</p>');
                 } else {
-                    galleryGrid.empty(); // Clear loading state
-                    limitedImages.forEach(function(img, index) {
-                        var imgHtml = `
-                            <a class="fancybox" href="${img}" data-fancybox-group="gallery" rel="gallery">
-                                <img src="${img}" alt="${displayCategory} Image ${index + 1}" loading="lazy" onerror="this.style.display='none';">
-                            </a>
-                        `;
+                    images.forEach(function(img, index) {
+                        var imgHtml = `<a class="fancybox" href="${img}" data-fancybox-group="gallery"><img src="${img}" alt="${displayCategory} Image ${index + 1}" loading="lazy"></a>`;
                         galleryGrid.append(imgHtml);
                     });
-                    // Initialize Fancybox after images are added
-                    $('.fancybox').fancybox({
-                        openEffect: 'elastic',
-                        closeEffect: 'elastic',
-                        prevEffect: 'fade',
-                        nextEffect: 'fade',
-                        helpers: {
-                            title: { type: 'inside' },
-                            buttons: {}
-                        }
-                    });
+                    $('.fancybox').fancybox();
                 }
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.error('Failed to load images.json:', textStatus, errorThrown);
-                $('#gallery-grid').html('');
                 $('#error-message').text('Unable to load images for ' + displayCategory + '. Please ensure images.json is available and try again.').show();
             });
         });
